@@ -1,9 +1,8 @@
-<!-- index.html - 声なき声（説明文＋チャット） -->
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>声なき声</title>
   <style>
     body {
@@ -72,7 +71,7 @@
     <p><strong>今、感じていることを教えてください。</strong></p>
 
     <div id="chat-box"></div>
-    <input type="text" id="message-input" placeholder="メッセージを入力...">
+    <input type="text" id="message-input" placeholder="メッセージを入力..." />
     <button id="send-button">送信</button>
 
     <p class="warning">
@@ -83,23 +82,26 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
-  <script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
+
     const firebaseConfig = {
-      // 👇ここにあなたのFirebase設定を入れてね
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_PROJECT_ID.appspot.com",
-      messagingSenderId: "YOUR_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyAaiBMrwQc-XGwNUlLDTReQ9tuj8-OACOk",
+      authDomain: "voiceless-127aa.firebaseapp.com",
+      projectId: "voiceless-127aa",
+      storageBucket: "voiceless-127aa.firebasestorage.app",
+      messagingSenderId: "900049156986",
+      appId: "1:900049156986:web:8d7204f83f5ee7eb4234c3",
+      measurementId: "G-9TLYH4MXFJ"
     };
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    const chatRef = db.ref('chat');
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const analytics = getAnalytics(app);
+
+    const chatRef = ref(db, 'chat');
 
     const chatBox = document.getElementById('chat-box');
     const input = document.getElementById('message-input');
@@ -108,12 +110,12 @@
     sendBtn.onclick = () => {
       const msg = input.value.trim();
       if (msg) {
-        chatRef.push({ sender: 'user', message: msg });
+        push(chatRef, { sender: 'user', message: msg });
         input.value = '';
       }
     };
 
-    chatRef.on('child_added', (data) => {
+    onChildAdded(chatRef, (data) => {
       const msg = data.val();
       const p = document.createElement('p');
       p.textContent = (msg.sender === 'admin' ? 'カウンセラー: ' : 'あなた: ') + msg.message;

@@ -1,0 +1,125 @@
+<!-- index.html - 声なき声（説明文＋チャット） -->
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>声なき声</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f8f7;
+      color: #333;
+      padding: 2em;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #4CAF50;
+    }
+    .note {
+      font-size: 1em;
+      margin-bottom: 1em;
+      line-height: 1.6;
+    }
+    .warning {
+      font-size: 0.9em;
+      color: #d32f2f;
+      margin-top: 1em;
+    }
+    #chat-box {
+      height: 300px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin: 1em 0;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    #message-input {
+      width: 80%;
+      padding: 0.8em;
+      font-size: 1em;
+    }
+    #send-button {
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+      background: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>声なき声</h1>
+
+    <p class="note">
+      あなたの声を大切に受け止めます。<br>
+      ここに来てくれてありがとう。<br>
+      声なき声は、心の悩みを匿名で気軽に話せる場所です。<br>
+      自分の気持ち、つらさ、なんでも自由に話してください。
+    </p>
+
+    <p><strong>今、感じていることを教えてください。</strong></p>
+
+    <div id="chat-box"></div>
+    <input type="text" id="message-input" placeholder="メッセージを入力...">
+    <button id="send-button">送信</button>
+
+    <p class="warning">
+      ※ このサイトは医療行為を提供するものではありません。<br>
+      ※ 必要に応じて警察などの機関に情報を提供する場合があります。<br>
+      ※ 自傷行為・自殺に関するアドバイスや手段の提供はできません。
+    </p>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      // 👇ここにあなたのFirebase設定を入れてね
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+      databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_PROJECT_ID.appspot.com",
+      messagingSenderId: "YOUR_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const chatRef = db.ref('chat');
+
+    const chatBox = document.getElementById('chat-box');
+    const input = document.getElementById('message-input');
+    const sendBtn = document.getElementById('send-button');
+
+    sendBtn.onclick = () => {
+      const msg = input.value.trim();
+      if (msg) {
+        chatRef.push({ sender: 'user', message: msg });
+        input.value = '';
+      }
+    };
+
+    chatRef.on('child_added', (data) => {
+      const msg = data.val();
+      const p = document.createElement('p');
+      p.textContent = (msg.sender === 'admin' ? 'カウンセラー: ' : 'あなた: ') + msg.message;
+      chatBox.appendChild(p);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    });
+  </script>
+</body>
+</html>

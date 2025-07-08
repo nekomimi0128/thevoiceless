@@ -87,14 +87,15 @@
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyAaiBMrwQc-XGwNUlLDTReQ9tuj8-OACOk",
-      authDomain: "voiceless-127aa.firebaseapp.com",
-      projectId: "voiceless-127aa",
-      storageBucket: "voiceless-127aa.firebasestorage.app",
-      messagingSenderId: "900049156986",
-      appId: "1:900049156986:web:8d7204f83f5ee7eb4234c3",
-      measurementId: "G-9TLYH4MXFJ"
-    };
+  apiKey: "AIzaSyAaiBMrwQc-XGwNUlLDTReQ9tuj8-OACOk",
+  authDomain: "voiceless-127aa.firebaseapp.com",
+  projectId: "voiceless-127aa",
+  storageBucket: "voiceless-127aa.appspot.com",
+  messagingSenderId: "900049156986",
+  appId: "1:900049156986:web:8d7204f83f5ee7eb4234c3",
+  measurementId: "G-9TLYH4MXFJ",
+  databaseURL: "https://voiceless-127aa-default-rtdb.firebaseio.com/"
+};
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);

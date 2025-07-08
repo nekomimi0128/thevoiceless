@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>カウンセラー用画面 | 声なき声</title>
+  <script>
+    const pw = prompt("パスワードを入力してください");
+    if (pw !== "yugoyugo0128") {
+      document.body.innerHTML = "<h1>アクセス拒否</h1><p>正しいパスワードを入力してください。</p>";
+      throw new Error("不正アクセス");
+    }
+  </script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f0f0f0;
+      color: #333;
+      padding: 2em;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+      background: white;
+      padding: 2em;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+    select {
+      margin-bottom: 1em;
+      padding: 0.5em;
+      font-size: 1em;
+    }
+    #chat-box {
+      height: 400px;
+      overflow-y: scroll;
+      border: 1px solid #ccc;
+      padding: 1em;
+      margin-bottom: 1em;
+      border-radius: 5px;
+      background: #f9f9f9;
+    }
+    #message-input {
+      width: 80%;
+      padding: 0.8em;
+      font-size: 1em;
+    }
+    #send-button {
+      padding: 0.8em 1.2em;
+      font-size: 1em;
+      background: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>相談中ユーザー一覧</h2>
+    <select id="user-select">
+      <option value="">-- ユーザーを選択 --</option>
+    </select>
+
+    <div id="chat-box"></div>
+    <input type="text" id="message-input" placeholder="メッセージを入力..." />
+    <button id="send-button">送信</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      onChildAdded,
+      onValue,
+      push,
+      get,
+      child
+    } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAaiBMrwQc-XGwNUlLDTReQ9tuj8-OACOk",
+      authDomain: "voiceless-127aa.firebaseapp.com",
+      projectId: "voiceless-127aa",
+      storageBucket: "voiceless-127aa.firebasestorage.app",
+      messagingSenderId: "900049156986",
+      appId: "1:900049156986:web:8d7204f83f5ee7eb4234c3",
+      measurementId: "G-9TLYH4MXFJ"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    const chatBox = document.getElementById("chat-box");
+    const input = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-button");
+    const userSelect = document.getElementById("user-select");
+
+    let currentUserId = null;
+    let currentChatRef = null;
+
+    const loadUsers = async () => {
+      const snapshot = await get(ref(db, 'chats'));
+      if (snapshot.exists()) {
+        const users = snapshot.val();
+        userSelect.innerHTML = '<option value="">-- ユーザーを選択 --</option>';
+        Object.keys(users).forEach(uid => {
+          const option = document.createElement('option');
+          option.value = uid;
+          option.textContent = uid;
+          userSelect.appendChild(option);
+        });
+      }
+    };
+
+    userSelect.addEventListener('change', () => {
+      chatBox.innerHTML = '';
+      currentUserId = userSelect.value;
+      if (!currentUserId) return;
+      currentChatRef = ref(db, `chats/${currentUserId}`);
+      onChildAdded(currentChatRef, (data) => {
+        const msg = data.val();
+        const p = document.createElement("p");
+        p.textContent = (msg.sender === "admin" ? "あなた: " : "相談者: ") + msg.message;
+        chatBox.appendChild(p);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      });
+    });
+
+    sendBtn.onclick = () => {
+      const msg = input.value.trim();
+      if (!msg || !currentUserId) return;
+      push(ref(db, `chats/${currentUserId}`), { sender: "admin", message: msg });
+      input.value = '';
+    };
+
+    loadUsers();
+  </script>
+</body>
+</html>

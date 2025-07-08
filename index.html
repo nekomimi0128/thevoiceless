@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>声なき声</title>
   <style>
     body {
@@ -71,7 +71,7 @@
     <p><strong>今、感じていることを教えてください。</strong></p>
 
     <div id="chat-box"></div>
-    <input type="text" id="message-input" placeholder="メッセージを入力..." />
+    <input type="text" id="message-input" placeholder="メッセージを入力...">
     <button id="send-button">送信</button>
 
     <p class="warning">
@@ -85,7 +85,6 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
     import { getDatabase, ref, push, onChildAdded } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-analytics.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAaiBMrwQc-XGwNUlLDTReQ9tuj8-OACOk",
@@ -99,9 +98,15 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
-    const analytics = getAnalytics(app);
 
-    const chatRef = ref(db, 'chat');
+    // ユーザーIDの生成・保存（初回のみ）
+    let userId = localStorage.getItem('userId');
+    if (!userId) {
+      userId = 'user_' + Math.random().toString(36).substring(2, 10);
+      localStorage.setItem('userId', userId);
+    }
+
+    const chatRef = ref(db, `chats/${userId}`);
 
     const chatBox = document.getElementById('chat-box');
     const input = document.getElementById('message-input');
